@@ -1,20 +1,23 @@
 import java.io.IOException;
+
 import java.util.*;
+
+import java.sql.Timestamp;
  
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
-import java.sql.Timestamp;
 
-public class mp1t2 {
+
+
+public class selfThetaJoin {
 
     public static class LongArrayWritable extends ArrayWritable {
         public LongArrayWritable() {
             super(LongWritable.class);
         }
-
         public String toString() {
             Writable[] values = this.get();
             return "," + values[0].toString() + "," + values[1].toString() + "," + values[2].toString();
@@ -28,7 +31,6 @@ public class mp1t2 {
             String line = value.toString();
             String[] tokens = line.split(",");
             LongWritable[] atts = new LongWritable[2];
-
             String click = tokens[3];
 
             if (click.equals("1") && tokens[1] != null && tokens[1].length > 0) {
@@ -39,9 +41,11 @@ public class mp1t2 {
                 long currTime;
                 LongArrayWritable res = new LongArrayWritable();
 
-
+                // Output key-value paires: <timeStamp + 1, [userid, 1 sec]>, 
+                // <timeStamp, [userid, 0 sec]> and <timeStamp - 1, [userid, -1 sec]> 
                 for (int timeShift = -1; timeShift <= 1; timeShift++) {
                     atts[1] = new LongWritable(timeShift);
+                    // Shifting timestamp by +1/0/-1 sec
                     currTime = ts.getTime() + timeShift*1000;
                     timeStamp.set(new Timestamp(currTime).toString());
                     res.set(atts);
@@ -52,14 +56,12 @@ public class mp1t2 {
     }
 
     public static class Reduce extends MapReduceBase implements Reducer<Text, LongArrayWritable, Text, LongArrayWritable> {
-
         private Text timeStamp = new Text();
 
         public void reduce(Text key, Iterator<LongArrayWritable> values, OutputCollector<Text, LongArrayWritable> output, Reporter reporter) throws IOException {
 
-
-            Writable[] a;
-            Writable[] b;
+            Writable[] a; // Copy a 
+            Writable[] b; // Copy b
             long aId;
             long aShift;
             long bId;
@@ -75,6 +77,8 @@ public class mp1t2 {
                     a = tmp.get();
                     aId = ((LongWritable) a[0]).get();
                     aShift = ((LongWritable) a[1]).get();
+
+                    // Explore each pair of two user_ids (two user_ids can be the same but with different time shift) 
                     for (LongArrayWritable iaw:allValues) {
                         b = iaw.get();
                         bId = ((LongWritable) b[0]).get();
@@ -105,15 +109,16 @@ public class mp1t2 {
     }
 
     public static void main(String[] args) throws Exception {
+        // Setting config
         JobConf conf = new JobConf(WordCount.class);
-        conf.setJobName("mp1t2");
+        conf.setJobName("selfThetaJoin");
         
         conf.setMapperClass(Map.class);
         conf.setCombinerClass(Reduce.class);
         conf.setReducerClass(Reduce.class);
         conf.setInputFormat(TextInputFormat.class);
         conf.setOutputFormat(TextOutputFormat.class);
-        conf.setJar("/root/mp1t2/mp1t2.jar");
+        conf.setJar("~/mapredJobs/selfThetaJoin.jar");
 
         conf.setOutputKeyClass(Text.class);
         conf.setOutputValueClass(LongArrayWritable.class);

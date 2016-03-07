@@ -1,4 +1,5 @@
 import java.io.IOException;
+
 import java.util.*;
  
 import org.apache.hadoop.fs.Path;
@@ -6,13 +7,13 @@ import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
-public class mp1t1 {
+
+public class countingArray {
 
     public static class IntArrayWritable extends ArrayWritable {
         public IntArrayWritable() {
             super(IntWritable.class);
         }
-
         public String toString() {
             Writable[] values = this.get();
             return "," + values[0].toString() + "," + values[1].toString() + "," + values[2].toString();
@@ -20,12 +21,10 @@ public class mp1t1 {
     }
 
     public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, Text, IntArrayWritable> {
-        // private final static IntWritable one = new IntWritable(1);
         private Text campaignId = new Text();
 
         public void map(LongWritable key, Text value, OutputCollector<Text, IntArrayWritable> output, Reporter reporter) throws IOException {
             String line = value.toString();
-            // StringTokenizer tokenizer = new StringTokenizer(line, ",");
             String[] tokens = line.split(",");
             IntWritable[] atts = new IntWritable[3];
 
@@ -55,6 +54,7 @@ public class mp1t1 {
             IntWritable[] result = new IntWritable[3];
             IntArrayWritable res = new IntArrayWritable();
 
+            // Summing up counts for each attribute in the array
             while (values.hasNext()) {
                     tmp = values.next().get();
                     sumOfImpression += ((IntWritable) tmp[0]).get();
@@ -72,15 +72,16 @@ public class mp1t1 {
     }
 
     public static void main(String[] args) throws Exception {
+        // Setting config
         JobConf conf = new JobConf(WordCount.class);
-        conf.setJobName("mp1t1");
+        conf.setJobName("countingArray");
         
         conf.setMapperClass(Map.class);
         conf.setCombinerClass(Reduce.class);
         conf.setReducerClass(Reduce.class);
         conf.setInputFormat(TextInputFormat.class);
         conf.setOutputFormat(TextOutputFormat.class);
-        conf.setJar("/root/mp1/mp1t1.jar");
+        conf.setJar("~/mapredJobs/countingArray.jar");
 
         conf.setOutputKeyClass(Text.class);
         conf.setOutputValueClass(IntArrayWritable.class);
