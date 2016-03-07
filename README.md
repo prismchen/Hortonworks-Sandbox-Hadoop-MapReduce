@@ -24,7 +24,7 @@ Each line of the output file obeys the following format: <br>
 	Download HDP 2.4 on Hortonworks Sandbox, load it to your virtual machine (like virtualBox)
 	After login virtual machine via ssh; open http://127.0.0.1/8080 and login as "maria_dev/maria_dev" (usrname/password); click "HDFS files" on navigation bar; create folders /usr/root/mapredJobs/input; upload data into /usr/root/mapredJobs/input
 
-	Compile & jar: 
+	Compile & jar (in virtual machine): 
 	javac -cp /usr/hdp/2.4.0.0-169/hadoop/*:/usr/hdp/2.4.0.0-169/hadoop-mapreduce/* countingArray.java
 	jar -cvf countingArray.jar *.class
 	
@@ -44,7 +44,7 @@ Find the click events from different users that are close to each other. The req
 
 ###### Usage: 
 
-	Compile & jar: 
+	Compile & jar (in virtual machine): 
 	javac -cp /usr/hdp/2.4.0.0-169/hadoop/*:/usr/hdp/2.4.0.0-169/hadoop-mapreduce/* selfThetaJoin.java
 	jar -cvf selfThetaJoin.jar *.class
 	
