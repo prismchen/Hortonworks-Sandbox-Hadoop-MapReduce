@@ -15,10 +15,9 @@ Count the number of impressions, clicks, conversions for each of the campaigns i
 - campaign_id
 - creative_id
 - ...
-- 
 
 Each line of the output file obeys the following format: <br>
-	campaign_id, count of impressions, count of clicks, count of conversions
+	__campaign_id, count of impressions, count of clicks, count of conversions__
 
 ###### Usage:
 	Environment setup:
@@ -43,7 +42,7 @@ Find the click events from different users that are close to each other. The req
 	AND    a.user_id < b.user_id
 	AND    abs(TIMESTAMPDIFF(SECOND, a.ymdh, b.ymdh)) < 2;
 
-Usage: 
+###### Usage: 
 
 	Compile & jar: 
 	javac -cp /usr/hdp/2.4.0.0-169/hadoop/*:/usr/hdp/2.4.0.0-169/hadoop-mapreduce/* selfThetaJoin.java
