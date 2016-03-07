@@ -25,11 +25,16 @@ Each line of the output file obeys the following format: <br>
 	After login virtual machine via ssh; open http://127.0.0.1/8080 and login as "maria_dev/maria_dev" (usrname/password); click "HDFS files" on navigation bar; create folders /usr/root/mapredJobs/input; upload data into /usr/root/mapredJobs/input
 
 	Compile & jar (in virtual machine): 
-	javac -cp /usr/hdp/2.4.0.0-169/hadoop/*:/usr/hdp/2.4.0.0-169/hadoop-mapreduce/* countingArray.java
-	jar -cvf countingArray.jar *.class
+	javac -cp /usr/hdp/2.4.0.0-169/hadoop/*:/usr/hdp/2.4.0.0-169/hadoop-mapreduce/* countingAtt.java
+	jar -cvf countingAtt.jar *.class
 	
 	Run: 
-	hadoop jar countingArray.jar countingArray mapredJobs/input/data mapredJobs/output
+	hadoop jar countingAtt.jar countingAtt mapredJobs/input/data mapredJobs/output
+	
+	Check result: 
+	hadoop fs -cat /usr/root/mapredJobs/output/part-00000
+	
+	Note: each time finishing running the program, folder "output" should be removed for next running program
 
 #### Self Theta Join 
 
@@ -50,3 +55,6 @@ Find the click events from different users that are close to each other. The req
 	
 	Run: 
 	hadoop jar selfThetaJoin.jar selfThetaJoin mapredJobs/input/data mapredJobs/output
+	
+	Check result: 
+	hadoop fs -cat /usr/root/mapredJobs/output/part-00000
