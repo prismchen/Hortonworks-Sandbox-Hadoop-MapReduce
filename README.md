@@ -1,34 +1,53 @@
-Method: 
-	Map: for each line of data, we shift the timestamp by -1s, 0s and 1s, and we output three key-value pairs in the format:
-	<timestamp, [user_id, time shift (sec))]>
+# Hortonworks-Sandbox-Hadoop-MapReduce
+
+### Introduction
+
+This project consists of two MapReduce jobs running in Hortonworks Sandbox, which is a self-contained virtual machine with Apache Hadoop pre-configured. 
+
+#### Counting Attributes: 
+
+Count the number of impressions, clicks, conversions for each of the campaigns in the data set. The input file is in CSV format. The first few fields in file are:
+- ymdh
+- user_id
+- impression
+- click
+- conversion
+- campaign_id
+- creative_id
+- ...
+- 
+
+Each line of the output file obeys the following format: <br>
+	campaign_id, count of impressions, count of clicks, count of conversions
+
+###### Usage:
+	Environment setup:
+	Download HDP 2.4 on Hortonworks Sandbox, load it to your virtual machine (like virtualBox)
+	After login virtual machine via ssh; open http://127.0.0.1/8080 and login as "maria_dev/maria_dev" (usrname/password); click "HDFS files" on navigation bar; create folders /usr/root/mapredJobs/input; upload data into /usr/root/mapredJobs/input
+
+	Compile & jar: 
+	javac -cp /usr/hdp/2.4.0.0-169/hadoop/*:/usr/hdp/2.4.0.0-169/hadoop-mapreduce/* countingArray.java
+	jar -cvf countingArray.jar *.class
 	
-	Reduce: for each key-value pair, we compair each two key-value pairs and if user_id_a != user_id_b, and |time_shift_a - time_shift_b| < 2, we output <timestampe + timeshift_a, user_id_a, user_id_b> if user_id_a < user_id_b and vice versa.
+	Run: 
+	hadoop jar countingArray.jar countingArray mapredJobs/input/data mapredJobs/output
 
-Usage:
+#### Self Theta Join 
 
-	cs511_data is in hadoop fs /usr/root/mp1t2/input
+Find the click events from different users that are close to each other. The required logic can be represented as the following SQL:
 
-	javac -cp /usr/hdp/2.4.0.0-169/hadoop/*:/usr/hdp/2.4.0.0-169/hadoop-mapreduce/* mp1t2.java
-	jar -cvf mp1t2.jar *.class
-	hadoop jar mp1t2.jar mp1t2 mp1t2/input/cs511_data mp1t2/output
-
-Running time: 6 min
-
-Methods:
-	map: 
-		intput: each line of data
-		output: <campaign id, [count of impressions, count of clicks, count of conversions]>
-
-	reduce:
-		input: <campaign id, [count of impressions, count of clicks, count of conversions]>
-		output <campaign id, [sum of impressions, sum of clicks, sum of conversions]>
+	SELECT a.ymdh, a.user_id, b.user_id
+	FROM   data a, data b
+	WHERE  a.click = 1 AND b.click = 1
+	AND    a.user_id != null AND b.user_id != null
+	AND    a.user_id < b.user_id
+	AND    abs(TIMESTAMPDIFF(SECOND, a.ymdh, b.ymdh)) < 2;
 
 Usage: 
 
-	cs511_data is in hadoop fs /usr/root/mp1t1/input
-
-	javac -cp /usr/hdp/2.4.0.0-169/hadoop/*:/usr/hdp/2.4.0.0-169/hadoop-mapreduce/* mp1t1.java
-	jar -cvf mp1t1.jar *.class
-	hadoop jar mp1t1.jar mp1t1 mp1t1/input/cs511_data mp1t1/output
-
-Running time: 2 min 
+	Compile & jar: 
+	javac -cp /usr/hdp/2.4.0.0-169/hadoop/*:/usr/hdp/2.4.0.0-169/hadoop-mapreduce/* selfThetaJoin.java
+	jar -cvf selfThetaJoin.jar *.class
+	
+	Run: 
+	hadoop jar selfThetaJoin.jar selfThetaJoin mapredJobs/input/data mapredJobs/output
