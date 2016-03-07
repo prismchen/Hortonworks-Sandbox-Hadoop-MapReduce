@@ -76,7 +76,7 @@ public class selfThetaJoin {
                     aId = ((LongWritable) a[0]).get();
                     aShift = ((LongWritable) a[1]).get();
 
-                    // Explore each pair of two user_ids
+                    // Explore each pair of two user_ids (two user_ids can be the same but with different time shifts) 
                     for (LongArrayWritable iaw:allValues) {
                         b = iaw.get();
                         bId = ((LongWritable) b[0]).get();
