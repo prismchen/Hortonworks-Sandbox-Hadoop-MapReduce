@@ -10,8 +10,6 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 
-
-
 public class selfThetaJoin {
 
     public static class LongArrayWritable extends ArrayWritable {
