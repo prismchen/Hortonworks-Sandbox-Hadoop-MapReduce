@@ -34,7 +34,7 @@ Each line of the output file obeys the following format: <br>
 	Check result: 
 	hadoop fs -cat /usr/root/mapredJobs/output/part-00000
 	
-	Note: each time finishing running the program, folder "output" should be removed for next running program
+	Note: each time finishing running the program, folder "mapredJobs/output" should be removed for next running program
 
 #### Self Theta Join 
 
