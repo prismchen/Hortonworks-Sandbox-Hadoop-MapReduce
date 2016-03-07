@@ -8,7 +8,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 
-public class countingArray {
+public class countingAtt {
 
     public static class IntArrayWritable extends ArrayWritable {
         public IntArrayWritable() {
@@ -74,14 +74,14 @@ public class countingArray {
     public static void main(String[] args) throws Exception {
         // Setting config
         JobConf conf = new JobConf(WordCount.class);
-        conf.setJobName("countingArray");
+        conf.setJobName("countingAtt");
         
         conf.setMapperClass(Map.class);
         conf.setCombinerClass(Reduce.class);
         conf.setReducerClass(Reduce.class);
         conf.setInputFormat(TextInputFormat.class);
         conf.setOutputFormat(TextOutputFormat.class);
-        conf.setJar("~/mapredJobs/countingArray.jar");
+        conf.setJar("~/mapredJobs/countingAtt.jar");
 
         conf.setOutputKeyClass(Text.class);
         conf.setOutputValueClass(IntArrayWritable.class);
