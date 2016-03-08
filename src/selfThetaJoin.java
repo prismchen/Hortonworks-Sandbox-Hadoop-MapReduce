@@ -58,51 +58,37 @@ public class selfThetaJoin {
 
         public void reduce(Text key, Iterator<LongArrayWritable> values, OutputCollector<Text, LongArrayWritable> output, Reporter reporter) throws IOException {
 
-            Writable[] a; // Copy a 
-            Writable[] b; // Copy b
-            long aId;
-            long aShift;
-            long bId;
-            long bShift;
             LongArrayWritable tmp = new LongArrayWritable();
             LongArrayWritable res = new LongArrayWritable();
             LongWritable[] result = new LongWritable[2];
             List<LongArrayWritable> allValues = new ArrayList<>();
+            long zero = 0L;
 
+            // Store all Values in the form of [user_id, time_shift]
             while (values.hasNext()) {
                 tmp = values.next();
-                if (!allValues.isEmpty()) {
-                    a = tmp.get();
-                    aId = ((LongWritable) a[0]).get();
-                    aShift = ((LongWritable) a[1]).get();
+                allValues.add(tmp);
+            }
 
-                    // Explore each pair of two user_ids (two user_ids can be the same but with different time shifts) 
-                    for (LongArrayWritable iaw:allValues) {
-                        b = iaw.get();
-                        bId = ((LongWritable) b[0]).get();
-                        bShift = ((LongWritable) b[1]).get();
-                        if (aId < bId && Math.abs(aShift - bShift) < 2) {
-                            Timestamp ts = Timestamp.valueOf(key.toString());
-                            long realTime = ts.getTime() + aShift*1000;
-                            timeStamp.set(new Timestamp(realTime).toString());
-                            result[0] = new LongWritable(aId);
-                            result[1] = new LongWritable(bId);
-                            res.set(result);
-                            output.collect(timeStamp, res);
-                        }
-                        else if (aId > bId && Math.abs(aShift - bShift) < 2) {
-                            Timestamp ts = Timestamp.valueOf(key.toString());
-                            long realTime = ts.getTime() + bShift*1000;
-                            timeStamp.set(new Timestamp(realTime).toString());
-                            result[0] = new LongWritable(bId);
-                            result[1] = new LongWritable(aId);
-                            res.set(result);
-                            output.collect(timeStamp, res);
-                        }
+            // Traverse all possible pairs of user_id s
+            for (int i=0; i<allValues.size(); i++) {
+                Writable[] a = allValues.get(i).get();
+                long aId = ((LongWritable) a[0]).get();
+                long aShift = ((LongWritable) a[1]).get();
+
+                for (int j=i+1; j<allValues.size(); j++) {
+                    Writable[] b = allValues.get(j).get();
+                    long bId = ((LongWritable) b[0]).get();
+
+                    // Find a satisfying pair of user_id s, and output it
+                    if (aId < bId && aShift == zero) {
+                        result[0] = new LongWritable(aId);
+                        result[1] = new LongWritable(bId);
+                        res.set(result);
+                        output.collect(key, res);
                     }
                 }
-                allValues.add(tmp);
-            }  
+            }    
         }
     }
 
@@ -112,7 +98,6 @@ public class selfThetaJoin {
         conf.setJobName("selfThetaJoin");
         
         conf.setMapperClass(Map.class);
-        conf.setCombinerClass(Reduce.class);
         conf.setReducerClass(Reduce.class);
         conf.setInputFormat(TextInputFormat.class);
         conf.setOutputFormat(TextOutputFormat.class);
