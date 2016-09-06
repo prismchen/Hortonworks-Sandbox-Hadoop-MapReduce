@@ -1,9 +1,6 @@
 import java.io.IOException;
-
 import java.util.*;
-
 import java.sql.Timestamp;
- 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.*;
